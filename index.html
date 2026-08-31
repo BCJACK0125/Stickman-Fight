@@ -1,0 +1,2317 @@
+
+
+移至內容
+透過螢幕閱讀器使用 Gmail
+第 4 個，共 2,043 個
+火柴人擂台
+收件匣
+
+陳博謙26208
+附件
+2026年8月31日 下午6:16 (5 小時前)
+寄給 我
+
+動態感的來源
+
+骨架式姿勢系統：角色是一組可插值的關節角度（髖、肩、肘、膝、整體旋轉），動作之間會自然過渡，不是換圖。在地面時會自動把最低的腳貼齊地面，所以不會浮空或陷進地板。
+命中定格（hitstop）：打中的瞬間雙方凍結 6～13 幀，這是格鬥遊戲打擊感最關鍵的一味。
+拳腳殘影弧線、衝刺時的分身殘影、鏡頭震動、命中火花＋衝擊環＋傷害數字。
+動態鏡頭：跟隨兩人中點，距離越近自動推近，最遠自動拉遠；擂台世界寬 1240px 比畫面寬，所以有橫向捲動。
+戰鬥機制
+
+普攻是三段連段：直拳 → 迴旋踢 → 上勾拳（會把人打飛到空中），收招後段按下一擊可以接續。
+特殊技做成上下文分歧：地面按 = 衝刺拳（高傷高擊退），空中按 = 斜下氣功彈。冷卻 3 秒，血條下方有進度條與秒數。
+拳頭對撞判定（CLASH）：雙方 hitbox 撞在一起時彈開、不扣血。
+二段跳、落地緩衝、撞牆反彈、連段計數。
+99 秒回合計時，時間到血量高者勝，同血平手。
+其他
+
+HP 條有延遲的白色「掉血殘影」、低血量脈動警示、斜切造型。
+全部音效用 WebAudio 即時合成（揮空、命中、氣功、KO 鐘聲），可用工具列開關。
+輸入用 Set 記錄按住的鍵，攻擊只吃邊緣事件，多鍵同按絕不互卡；視窗失焦會自動清空避免鍵卡住。
+固定 1/60 邏輯步進 + requestAnimationFrame 繪製，切分頁回來不會暴衝；左下角有 FPS 顯示。
+ 
+
+ 
+
+https://event.esunbank.com.tw/mkt/integration/signature/images/1/esg-1.jpg
+
+玉山銀行 E.SUN Bank
+
+智能金融處
+
+陳博謙 _ 資深工程師
+
+Tel: (02) 2175-1313_ext.6550
+
+105台北市松山區民生東路三段117號11樓
+
+ 
+
+<>
+
+本電子訊息之內容(包括附件)係由玉山金控所傳送，該電子訊息之內容具有機密性且可能必須經由本公司之授權方可利用，因此，除了本電子訊息所指定之收件者外，任何人或公司不得就該電子訊息全部或部分之內容為審閱、傳送、散布、揭露、重製或為其他使用。若您並非所指定之收件者，請立即通知我們並請刪除該電子訊息之內容，謝謝您的合作。此外，該電子訊息內容可能被變更，且網際網路並不保證該電子訊息內容之完整性，因此，玉山金控對於他人變更、修改、竄改或偽造之電子訊息內容，恕不負任何責任。
+This message and its attachment(s) (hereinafter collectively referred to as 〝Message〞) are from the E.SUN FHC. The Message is confidential and may also be privileged. Any review, retransmission, dissemination, disclosure, copying or other use of the whole or partial Message by persons or entities other than the recipient(s) as indicated in the Message is prohibited. If you are not an intended recipient, please kindly reply us immediately and delete the Message from any computer and network. We greatly appreciate your cooperation. Besides, the Message is susceptible to alteration and the Internet can not guarantee the integrity of the Message. Therefore, the E.SUN FHC shall not be liable for the Message if altered, modified, changed or falsified.
+<>
+
+...
+
+[未顯示完整郵件內容]  查看整封郵件
+ 1 個附件
+  •  已通過 Gmail 掃描檢查
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>火柴人擂台 · STICK ARENA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;800&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0e14;
+    --arena:#141a24;
+    --arena-2:#1d2734;
+    --line:#31435c;
+    --p1:#4fa8ff;
+    --p1-soft:#a9d6ff;
+    --p2:#ff5347;
+    --p2-soft:#ffb2a5;
+    --spark:#ffe27a;
+    --paper:#e8eef6;
+    --dim:#8899ad;
+    --font-ui:"Barlow Condensed","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    --font-tc:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{height:100%;}
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #1b2534 0%, #0a0e14 62%, #05070a 100%);
+    color:var(--paper);
+    font-family:var(--font-tc);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:18px 12px 26px;
+    min-height:100%;
+    overflow-x:hidden;
+  }
+
+  /* ---------- 標題列 ---------- */
+  .masthead{
+    width:min(96vw,1000px);
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    padding:0 2px;
+  }
+  .masthead h1{
+    font-family:var(--font-ui);
+    font-weight:800;
+    font-size:clamp(22px,3.4vw,34px);
+    letter-spacing:.14em;
+    margin:0;
+    line-height:1;
+    color:var(--paper);
+  }
+  .masthead h1 span{
+    display:block;
+    font-family:var(--font-tc);
+    font-weight:700;
+    font-size:.44em;
+    letter-spacing:.22em;
+    color:var(--dim);
+    margin-top:6px;
+  }
+  .masthead p{
+    margin:0;
+    font-family:var(--font-ui);
+    font-size:14px;
+    letter-spacing:.16em;
+    color:var(--dim);
+    text-align:right;
+    line-height:1.5;
+  }
+
+  /* ---------- 擂台 ---------- */
+  #stage{
+    position:relative;
+    width:min(96vw,1000px);
+    aspect-ratio:16/9;
+    border-radius:4px;
+    background:#0b1017;
+    box-shadow:
+      0 0 0 1px rgba(120,160,210,.16),
+      0 0 0 8px rgba(10,14,20,.9),
+      0 34px 80px -30px rgba(0,0,0,.95),
+      0 0 120px -40px rgba(79,168,255,.22);
+    overflow:hidden;
+  }
+  canvas{
+    display:block;
+    width:100%;
+    height:100%;
+    touch-action:none;
+  }
+
+  /* ---------- 覆蓋層 ---------- */
+  .overlay{
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:4%;
+    background:rgba(7,10,15,.74);
+    backdrop-filter:blur(7px) saturate(.8);
+    -webkit-backdrop-filter:blur(7px) saturate(.8);
+    z-index:5;
+  }
+  .overlay.show{display:flex;}
+
+  .panel{
+    width:100%;
+    max-width:760px;
+    text-align:center;
+  }
+
+  .panel .kicker{
+    font-family:var(--font-ui);
+    font-size:clamp(11px,1.4vw,14px);
+    letter-spacing:.4em;
+    color:var(--dim);
+    margin:0 0 10px;
+  }
+  .panel h2{
+    font-family:var(--font-ui);
+    font-weight:800;
+    font-size:clamp(30px,6vw,60px);
+    letter-spacing:.06em;
+    margin:0 0 4px;
+    line-height:.95;
+  }
+  .panel .sub{
+    font-size:clamp(12px,1.7vw,15px);
+    color:var(--dim);
+    margin:0 0 22px;
+    line-height:1.7;
+  }
+
+  /* 按鍵說明 */
+  .guides{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:clamp(10px,2vw,22px);
+    margin:0 auto 24px;
+    max-width:660px;
+    text-align:left;
+  }
+  .guide{
+    border-top:2px solid currentColor;
+    padding-top:10px;
+  }
+  .guide.p1{color:var(--p1);}
+  .guide.p2{color:var(--p2);}
+  .guide h3{
+    font-family:var(--font-ui);
+    font-size:clamp(13px,1.8vw,17px);
+    font-weight:700;
+    letter-spacing:.18em;
+    margin:0 0 8px;
+  }
+  .guide dl{
+    margin:0;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:5px 10px;
+    align-items:center;
+  }
+  .guide dt{margin:0;display:flex;gap:4px;flex-wrap:wrap;}
+  .guide dd{
+    margin:0;
+    font-size:clamp(10px,1.4vw,13px);
+    color:var(--paper);
+    opacity:.82;
+  }
+  kbd{
+    font-family:var(--font-ui);
+    font-weight:600;
+    font-size:clamp(10px,1.3vw,13px);
+    line-height:1;
+    min-width:22px;
+    padding:5px 6px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:4px;
+    color:var(--paper);
+    background:linear-gradient(#243141,#16202c);
+    box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 2px 0 #0b1118;
+  }
+
+  /* 按鈕 */
+  .row{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:var(--font-ui);
+    font-weight:600;
+    font-size:clamp(13px,1.7vw,16px);
+    letter-spacing:.16em;
+    color:var(--paper);
+    background:#1a2432;
+    border:1px solid rgba(140,175,215,.24);
+    border-radius:3px;
+    padding:12px 22px;
+    cursor:pointer;
+    transition:background .14s ease, border-color .14s ease, transform .07s ease, color .14s ease;
+  }
+  button:hover{background:#22303f;border-color:rgba(160,200,240,.45);}
+  button:active{transform:translateY(1px);}
+  button:focus-visible{outline:2px solid var(--p1);outline-offset:3px;}
+  button.primary{
+    background:linear-gradient(180deg,#5cb2ff,#2b7fd4);
+    border-color:#8fcbff;
+    color:#06121f;
+    font-weight:800;
+  }
+  button.primary:hover{background:linear-gradient(180deg,#79c1ff,#3a8fe4);}
+  button.ghost{background:transparent;}
+  button[aria-pressed="false"]{color:var(--dim);}
+
+  /* 勝利 */
+  .win .panel h2{
+    font-size:clamp(34px,7.6vw,78px);
+    letter-spacing:.02em;
+  }
+  .banner{
+    position:relative;
+    display:inline-block;
+    padding:2px 4px;
+  }
+  .rays{
+    position:absolute;
+    left:50%;top:50%;
+    width:min(150vw,1400px);
+    aspect-ratio:1;
+    transform:translate(-50%,-50%);
+    background:repeating-conic-gradient(from 0deg, currentColor 0deg 4deg, transparent 4deg 15deg);
+    opacity:.13;
+    animation:spin 22s linear infinite;
+    -webkit-mask-image:radial-gradient(circle, #000 6%, transparent 58%);
+    mask-image:radial-gradient(circle, #000 6%, transparent 58%);
+    pointer-events:none;
+  }
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg);}}
+  .pop{animation:pop .5s cubic-bezier(.16,1.02,.3,1) both;}
+  @keyframes pop{
+    0%{transform:scale(.62);opacity:0;filter:blur(6px);}
+    60%{transform:scale(1.04);opacity:1;filter:blur(0);}
+    100%{transform:scale(1);opacity:1;}
+  }
+  .fadein{animation:fadein .55s ease .22s both;}
+  @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ---------- 工具列 ---------- */
+  .toolbar{
+    width:min(96vw,1000px);
+    display:flex;
+    gap:8px;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .toolbar .spacer{flex:1;}
+  .hint{
+    font-family:var(--font-ui);
+    font-size:13px;
+    letter-spacing:.12em;
+    color:#5f7086;
+  }
+
+  @media (max-width:560px){
+    .guides{grid-template-columns:1fr;}
+    .masthead{flex-direction:column;align-items:flex-start;gap:6px;}
+    .masthead p{text-align:left;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .rays{animation:none;}
+    .pop,.fadein{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <h1>STICK ARENA<span>火柴人擂台</span></h1>
+  <p>同台對戰 · 共用鍵盤<br>Canvas 2D · 60 FPS</p>
+</header>
+
+<div id="stage">
+  <canvas id="game" width="800" height="450" aria-label="火柴人格鬥對戰畫面"></canvas>
+
+  <!-- 開始畫面 -->
+  <div class="overlay show" id="ov-menu">
+    <div class="panel">
+      <p class="kicker">BEST FIGHTER TAKES THE FLOOR</p>
+      <h2>火柴人擂台</h2>
+      <p class="sub">兩位玩家共用一組鍵盤。打空氣會有硬直，打中人會有火花。<br>先把對手的血條清空，或在時間結束時血量較高者獲勝。</p>
+
+      <div class="guides">
+        <div class="guide p1">
+          <h3>PLAYER 1 · 藍</h3>
+          <dl>
+            <dt><kbd>A</kbd><kbd>D</kbd></dt><dd>左右移動</dd>
+            <dt><kbd>W</kbd></dt><dd>跳躍（可二段跳）</dd>
+            <dt><kbd>F</kbd></dt><dd>普通攻擊（拳 → 腿 → 上勾拳）</dd>
+            <dt><kbd>G</kbd></dt><dd>特殊技：地面衝刺拳 / 空中氣功彈（冷卻 3 秒）</dd>
+          </dl>
+        </div>
+        <div class="guide p2">
+          <h3>PLAYER 2 · 紅</h3>
+          <dl>
+            <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>左右移動</dd>
+            <dt><kbd>↑</kbd></dt><dd>跳躍（可二段跳）</dd>
+            <dt><kbd>1</kbd></dt><dd>普通攻擊（拳 → 腿 → 上勾拳）</dd>
+            <dt><kbd>2</kbd></dt><dd>特殊技：地面衝刺拳 / 空中氣功彈（冷卻 3 秒）</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="primary" id="btn-start">開始遊戲</button>
+        <button id="btn-reset-menu">重設遊戲</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 暫停 -->
+  <div class="overlay" id="ov-pause">
+    <div class="panel">
+      <p class="kicker">PAUSED</p>
+      <h2>暫停中</h2>
+      <p class="sub">按 Esc 或點下面的按鈕繼續。</p>
+      <div class="row">
+        <button class="primary" id="btn-resume">繼續對戰</button>
+        <button id="btn-reset-pause">重設遊戲</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 勝利 -->
+  <div class="overlay win" id="ov-win">
+    <div class="panel">
+      <div class="banner" id="win-banner">
+        <div class="rays" id="win-rays"></div>
+        <p class="kicker" id="win-kicker">K.O.</p>
+        <h2 class="pop" id="win-title">Player 1 獲勝！</h2>
+      </div>
+      <p class="sub fadein" id="win-sub"></p>
+      <div class="row fadein">
+        <button class="primary" id="btn-rematch">再戰一場</button>
+        <button id="btn-reset-win">重設遊戲</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button id="btn-start-2" class="primary">開始遊戲</button>
+  <button id="btn-reset-2">重設遊戲</button>
+  <button id="btn-pause-2">暫停</button>
+  <button id="btn-sound" aria-pressed="true">音效 開</button>
+  <span class="hint">Enter 開始 · Esc 暫停</span>
+</div>
+
+<script>
+"use strict";
+/* =========================================================================
+   火柴人擂台 · STICK ARENA
+   單檔 2D 格鬥遊戲：固定時間步進邏輯 + requestAnimationFrame 繪製
+   模組順序：工具函式 → 輸入 → 音效 → 骨架/姿勢 → 特效 → 角色 → 場景 → HUD → 主循環
+   ========================================================================= */
+
+/* ------------------------------ 0. 常數 ------------------------------ */
+const VIEW_W = 800, VIEW_H = 450;      // 畫布（16:9）
+const ARENA_W = 1240;                  // 擂台世界寬度（比畫面寬，鏡頭會跟隨）
+const GROUND_Y = 372;                  // 地面高度（世界座標）
+const WALL_PAD = 46;                   // 角色不能超出的左右邊界
+const STEP = 1 / 60;                   // 邏輯固定步進
+const ROUND_TIME = 99;                 // 回合秒數
+
+const PHYS = {
+  gravity: 0.62,
+  jumpV: -12.6,
+  airJumpV: -11.2,
+  accel: 0.92,
+  maxSpeed: 4.7,
+  groundFriction: 0.80,
+  airFriction: 0.955,
+  airControl: 0.42,
+  maxFall: 17
+};
+
+const COLORS = {
+  p1: "#4fa8ff", p1soft: "#c3e2ff", p1deep: "#1c5fa8",
+  p2: "#ff5347", p2soft: "#ffc3ba", p2deep: "#a82a20",
+  spark: "#ffe27a", white: "#ffffff",
+  floor: "#1b2431"
+};
+
+/* 攻擊資料表：以「幀」為單位（60fps）
+   src 決定 hitbox 掛在哪個關節上 */
+const MOVES = {
+  punch: {
+    label: "直拳", startup: 4, active: 4, recover: 9, dmg: 6,
+    kbx: 3.7, kby: -1.9, hitstun: 12, src: "handF", r: 13,
+    hitstop: 6, shake: 4, sfx: "whoosh", pitch: 1.0
+  },
+  kick: {
+    label: "迴旋踢", startup: 6, active: 5, recover: 12, dmg: 9,
+    kbx: 5.2, kby: -3.0, hitstun: 17, src: "footF", r: 15,
+    hitstop: 8, shake: 7, sfx: "whoosh", pitch: 0.78
+  },
+  upper: {
+    label: "上勾拳", startup: 7, active: 5, recover: 17, dmg: 12,
+    kbx: 3.4, kby: -9.4, hitstun: 26, src: "handF", r: 15,
+    hitstop: 11, shake: 11, sfx: "heavy", pitch: 0.62, launcher: true
+  },
+  dash: {
+    label: "衝刺拳", startup: 5, active: 14, recover: 14, dmg: 15,
+    kbx: 9.2, kby: -5.4, hitstun: 30, src: "handF", r: 17,
+    hitstop: 13, shake: 15, sfx: "heavy", pitch: 0.5, special: true
+  }
+};
+const CHAIN = ["punch", "kick", "upper"];   // 普攻連段順序
+const SPECIAL_CD = 180;                     // 3 秒 × 60 幀
+
+/* ------------------------------ 1. 工具 ------------------------------ */
+const clamp = (v, a, b) => v < a ? a : (v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const randInt = (a, b) => Math.floor(rand(a, b + 1));
+const pick = arr => arr[randInt(0, arr.length - 1)];
+const sign = v => v < 0 ? -1 : 1;
+
+/** 圓與矩形是否重疊（用於 hitbox × hurtbox） */
+function circleRect(cx, cy, r, rx, ry, rw, rh) {
+  const nx = clamp(cx, rx, rx + rw);
+  const ny = clamp(cy, ry, ry + rh);
+  const dx = cx - nx, dy = cy - ny;
+  return dx * dx + dy * dy <= r * r;
+}
+function dist2(ax, ay, bx, by) {
+  const dx = ax - bx, dy = ay - by;
+  return dx * dx + dy * dy;
+}
+/** 繞 pivot 旋轉一個點（canvas 座標系：正角度 = 順時針） */
+function rotPoint(p, px, py, ang) {
+  const c = Math.cos(ang), s = Math.sin(ang);
+  const dx = p.x - px, dy = p.y - py;
+  return { x: px + dx * c - dy * s, y: py + dx * s + dy * c };
+}
+
+/* ------------------------------ 2. 輸入 ------------------------------ */
+/* 用 Set 記錄按住的鍵 → 天生支援多鍵同時按下，永遠不會互卡。
+   另外用 edge 記錄「這一步新按下的鍵」，攻擊只吃邊緣事件。 */
+const Input = (() => {
+  const held = new Set();
+  const edge = new Set();
+  const BLOCK = new Set([
+    "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Space",
+    "Digit1", "Digit2", "Numpad1", "Numpad2"
+  ]);
+
+  window.addEventListener("keydown", e => {
+    if (BLOCK.has(e.code)) e.preventDefault();
+    if (!e.repeat) edge.add(e.code);
+    held.add(e.code);
+  }, { passive: false });
+
+  window.addEventListener("keyup", e => {
+    held.delete(e.code);
+  });
+
+  // 視窗失焦時清空，避免「鍵卡住」
+  window.addEventListener("blur", () => { held.clear(); edge.clear(); });
+
+  return {
+    down: codes => codes.some(c => held.has(c)),
+    pressed: codes => codes.some(c => edge.has(c)),
+    clearEdge: () => edge.clear(),
+    releaseAll: () => { held.clear(); edge.clear(); }
+  };
+})();
+
+const CONTROLS = {
+  p1: { left: ["KeyA"], right: ["KeyD"], jump: ["KeyW"], attack: ["KeyF"], special: ["KeyG"] },
+  p2: {
+    left: ["ArrowLeft"], right: ["ArrowRight"], jump: ["ArrowUp"],
+    attack: ["Digit1", "Numpad1"], special: ["Digit2", "Numpad2"]
+  }
+};
+
+/* ------------------------------ 3. 音效 ------------------------------ */
+/* 全部用 WebAudio 即時合成，不需要任何外部檔案 */
+const Sound = (() => {
+  let ctx = null, master = null, noiseBuf = null, enabled = true;
+
+  function init() {
+    if (ctx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) { enabled = false; return; }
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+    const len = Math.floor(ctx.sampleRate * 0.7);
+    noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  }
+  function ready() {
+    if (!enabled) return false;
+    init();
+    if (!ctx) return false;
+    if (ctx.state === "suspended") ctx.resume();
+    return true;
+  }
+  function noise(dur, freq, q, gain, type = "bandpass", sweep = 0) {
+    const src = ctx.createBufferSource(); src.buffer = noiseBuf;
+    const f = ctx.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = ctx.createGain();
+    const t = ctx.currentTime;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    if (sweep) f.frequency.exponentialRampToValueAtTime(Math.max(60, freq * sweep), t + dur);
+    src.connect(f); f.connect(g); g.connect(master);
+    src.start(t); src.stop(t + dur + 0.05);
+  }
+  function tone(dur, f0, f1, gain, type = "sine", delay = 0) {
+    const o = ctx.createOscillator(); o.type = type;
+    const g = ctx.createGain();
+    const t = ctx.currentTime + delay;
+    o.frequency.setValueAtTime(f0, t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(gain, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+
+  const api = {
+    unlock() { ready(); },
+    toggle() { enabled = !enabled; if (enabled) ready(); return enabled; },
+    get on() { return enabled; },
+
+    whoosh(p = 1) { if (!ready()) return; noise(0.16, 900 * p, 1.1, 0.16, "bandpass", 0.35); },
+    heavy(p = 1) { if (!ready()) return; noise(0.26, 520 * p, 0.9, 0.22, "bandpass", 0.3); tone(0.2, 180 * p, 60, 0.14, "triangle"); },
+    hit(power = 1) {
+      if (!ready()) return;
+      noise(0.1 + 0.06 * power, 1500, 0.7, 0.2 + 0.1 * power, "bandpass", 0.2);
+      tone(0.16, 260 - 60 * power, 48, 0.24 + 0.1 * power, "square");
+    },
+    clash() { if (!ready()) return; noise(0.2, 3200, 3, 0.2, "bandpass", 0.25); tone(0.3, 1200, 500, 0.1, "sawtooth"); },
+    jump() { if (!ready()) return; tone(0.12, 320, 620, 0.1, "sine"); },
+    land() { if (!ready()) return; noise(0.1, 260, 1.4, 0.12, "lowpass"); },
+    orb() { if (!ready()) return; tone(0.34, 720, 180, 0.13, "sawtooth"); noise(0.3, 1800, 2, 0.08, "bandpass", 0.2); },
+    boom() { if (!ready()) return; noise(0.42, 320, 0.8, 0.3, "lowpass", 0.25); tone(0.36, 130, 40, 0.22, "triangle"); },
+    dash() { if (!ready()) return; noise(0.3, 700, 1.2, 0.2, "bandpass", 2.2); },
+    ko() {
+      if (!ready()) return;
+      noise(0.6, 400, 0.7, 0.3, "lowpass", 0.2);
+      [0, 0.09, 0.18].forEach((d, i) => tone(0.9 - i * 0.1, [220, 330, 440][i], [110, 165, 220][i], 0.12, "triangle", d));
+    },
+    bell() { if (!ready()) return; tone(0.5, 880, 700, 0.12, "sine"); tone(0.7, 1320, 1000, 0.07, "sine", 0.05); }
+  };
+  return api;
+})();
+
+/* ------------------------- 4. 骨架與姿勢系統 ------------------------- */
+/* 角色 = 一組角度。角度以「垂直向下」為 0，正值代表朝面向方向旋轉。
+   所有姿勢都是可插值的數字集合 → 動作之間自然過渡，打鬥才有動態感。 */
+const SK = { torso: 26, upper: 15, fore: 14, thigh: 21, shin: 20, headR: 9, neck: 13 };
+
+const POSE_KEYS = [
+  "rot", "hipY", "lean", "headTilt",
+  "aFs", "aFe", "aBs", "aBe",
+  "lFh", "lFk", "lBh", "lBk", "squash"
+];
+
+function P(o) {
+  return {
+    rot: o.rot || 0, hipY: o.hipY != null ? o.hipY : -42, lean: o.lean || 0,
+    headTilt: o.headTilt || 0,
+    aFs: o.aFs || 0, aFe: o.aFe || 0, aBs: o.aBs || 0, aBe: o.aBe || 0,
+    lFh: o.lFh || 0, lFk: o.lFk || 0, lBh: o.lBh || 0, lBk: o.lBk || 0,
+    squash: o.squash != null ? o.squash : 1
+  };
+}
+
+/** 依角色狀態產生目標姿勢 */
+function targetPose(f) {
+  const t = f.animT;
+  switch (f.state) {
+    case "idle": {
+      const s = Math.sin(t * 2.4), s2 = Math.sin(t * 2.4 + 0.7);
+      return P({
+        hipY: -42 + s * 0.9, lean: 0.11 + s * 0.02, headTilt: s2 * 0.03,
+        aFs: 0.32 + s * 0.06, aFe: 0.62 + s2 * 0.07,
+        aBs: -0.24 + s * 0.05, aBe: -0.50 + s2 * 0.06,
+        lFh: 0.17, lFk: 0.06, lBh: -0.15, lBk: -0.03
+      });
+    }
+    case "run": {
+      const p = t * 12.5, s = Math.sin(p), c = Math.cos(p);
+      const fh = 0.78 * s, bh = -0.78 * s;
+      return P({
+        rot: 0.06, hipY: -41 + Math.abs(c) * -1.6, lean: 0.30, headTilt: -0.05,
+        lFh: fh + 0.12, lFk: fh * 0.45 + Math.max(0, -s) * 1.0 + 0.16,
+        lBh: bh + 0.12, lBk: bh * 0.45 + Math.max(0, s) * 1.0 + 0.16,
+        aFs: -0.72 * s + 0.10, aFe: -0.72 * s + 0.62,
+        aBs: 0.72 * s + 0.10, aBe: 0.72 * s + 0.62
+      });
+    }
+    case "jump":
+      return P({
+        rot: 0.05, hipY: -45, lean: 0.16, headTilt: 0.05, squash: 1.05,
+        aFs: 2.30, aFe: 2.62, aBs: -1.55, aBe: -1.95,
+        lFh: 0.95, lFk: 1.45, lBh: -0.50, lBk: -1.05
+      });
+    case "fall":
+      return P({
+        rot: -0.04, hipY: -44, lean: -0.08, headTilt: -0.05,
+        aFs: 1.95, aFe: 2.25, aBs: -1.72, aBe: -2.10,
+        lFh: 0.52, lFk: 0.18, lBh: -0.62, lBk: -0.42
+      });
+    case "land":
+      return P({
+        hipY: -33, lean: 0.36, headTilt: 0.1, squash: 0.92,
+        aFs: 0.85, aFe: 1.35, aBs: -0.80, aBe: -1.30,
+        lFh: 0.58, lFk: -0.34, lBh: -0.52, lBk: 0.30
+      });
+    case "attack": {
+      const m = f.move, ph = f.phase;
+      if (m.name === "punch") {
+        if (ph === "startup") return P({
+          hipY: -41, lean: -0.12, headTilt: -0.04,
+          aFs: -0.52, aFe: -1.10, aBs: 0.42, aBe: 0.95,
+          lFh: 0.10, lFk: 0.02, lBh: -0.22, lBk: -0.10
+        });
+        return P({
+          rot: 0.08, hipY: -41, lean: 0.26, headTilt: 0.04,
+          aFs: 1.55, aFe: 1.60, aBs: -0.92, aBe: -1.34,
+          lFh: 0.36, lFk: 0.16, lBh: -0.32, lBk: -0.24
+        });
+      }
+      if (m.name === "kick") {
+        if (ph === "startup") return P({
+          hipY: -40, lean: -0.22, headTilt: -0.06,
+          aFs: 0.92, aFe: 1.50, aBs: -0.42, aBe: -0.90,
+          lFh: -0.46, lFk: 0.42, lBh: -0.06, lBk: 0.02
+        });
+        return P({
+          rot: -0.14, hipY: -45, lean: -0.34, headTilt: -0.12,
+          aFs: -0.72, aFe: -1.24, aBs: 0.82, aBe: 1.32,
+          lFh: 1.60, lFk: 1.68, lBh: -0.14, lBk: -0.04
+        });
+      }
+      // upper
+      if (ph === "startup") return P({
+        hipY: -35, lean: 0.30, headTilt: 0.08, squash: 0.94,
+        aFs: -0.34, aFe: -0.92, aBs: 0.30, aBe: 0.80,
+        lFh: 0.52, lFk: -0.30, lBh: -0.48, lBk: 0.26
+      });
+      return P({
+        rot: -0.16, hipY: -47, lean: -0.26, headTilt: -0.14, squash: 1.06,
+        aFs: 2.38, aFe: 2.76, aBs: -0.52, aBe: -1.05,
+        lFh: 0.50, lFk: 0.92, lBh: -0.42, lBk: -0.70
+      });
+    }
+    case "dash":
+      return P({
+        rot: 0.36, hipY: -46, lean: 0.10, headTilt: -0.05,
+        aFs: 1.52, aFe: 1.56, aBs: -1.32, aBe: -1.74,
+        lFh: 0.72, lFk: 1.04, lBh: -0.92, lBk: -1.34
+      });
+    case "airspecial":
+      return P({
+        rot: -0.10, hipY: -44, lean: -0.05, headTilt: 0.06,
+        aFs: 1.24, aFe: 1.38, aBs: 1.10, aBe: 1.30,
+        lFh: 0.82, lFk: 1.32, lBh: -0.34, lBk: -0.92
+      });
+    case "hitstun": {
+      const w = Math.sin(f.hitstun * 0.9) * 0.12;
+      return P({
+        rot: -0.30, hipY: -40, lean: -0.42, headTilt: -0.22 + w,
+        aFs: -1.18 + w, aFe: -1.92, aBs: -0.92 - w, aBe: -1.48,
+        lFh: 0.62, lFk: 0.92, lBh: -0.52, lBk: -0.18
+      });
+    }
+    case "ko": {
+      const k = clamp(f.stateT / 26, 0, 1);
+      const e = 1 - Math.pow(1 - k, 3);
+      return P({
+        rot: -1.48 * e, hipY: -41, lean: -0.35 * e, headTilt: -0.3 * e,
+        aFs: -0.62, aFe: -0.24, aBs: -0.42, aBe: -0.06,
+        lFh: 0.50, lFk: 0.72, lBh: -0.22, lBk: 0.10
+      });
+    }
+    case "win": {
+      const s = Math.sin(f.stateT * 0.18);
+      return P({
+        hipY: -43 + s * 2.2, lean: 0.02, headTilt: s * 0.06,
+        aFs: 2.62 + s * 0.14, aFe: 2.94, aBs: -2.52 - s * 0.14, aBe: -2.86,
+        lFh: 0.20, lFk: 0.06, lBh: -0.20, lBk: -0.05
+      });
+    }
+    default:
+      return P({});
+  }
+}
+
+/* ------------------------------ 5. 特效 ------------------------------ */
+const FX = {
+  parts: [],
+  ghosts: [],
+  pops: [],
+  flash: 0,
+  flashColor: "#fff",
+
+  reset() { this.parts.length = 0; this.ghosts.length = 0; this.pops.length = 0; this.flash = 0; },
+
+  part(o) {
+    if (this.parts.length > 620) this.parts.shift();
+    this.parts.push({
+      x: o.x, y: o.y, vx: o.vx || 0, vy: o.vy || 0,
+      life: o.life, max: o.life, size: o.size || 3,
+      color: o.color || "#fff", type: o.type || "spark",
+      grav: o.grav != null ? o.grav : 0.14, drag: o.drag != null ? o.drag : 0.965,
+      spin: o.spin || 0, ang: o.ang || 0, w: o.w || 1
+    });
+  },
+
+  ghost(f, alpha) {
+    if (this.ghosts.length > 60) this.ghosts.shift();
+    this.ghosts.push({ J: f.snapshot(), color: f.color, life: 14, max: 14, a: alpha });
+  },
+
+  pop(x, y, text, color, big) {
+    this.pops.push({ x, y, text, color, life: 46, max: 46, big: !!big, vy: -1.05, vx: rand(-0.35, 0.35) });
+  },
+
+  /** 命中火花：放射狀碎片 + 衝擊環 + 白色十字閃光 */
+  impact(x, y, dir, power, color) {
+    const n = 12 + Math.floor(power * 12);
+    for (let i = 0; i < n; i++) {
+      const a = rand(-1.05, 1.05) + (dir > 0 ? 0 : Math.PI);
+      const sp = rand(2.2, 7.5) * (0.7 + power);
+      this.part({
+        x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - rand(0.2, 2.4),
+        life: randInt(14, 32), size: rand(1.4, 3.4),
+        color: Math.random() < 0.34 ? color : (Math.random() < 0.6 ? COLORS.spark : "#fff"),
+        type: "streak", grav: 0.18, drag: 0.94
+      });
+    }
+    this.part({ x, y, life: 15, size: 6, color: "#fff", type: "ring", grav: 0, drag: 1, w: 3 + power * 3 });
+    this.part({ x, y, life: 22, size: 10, color: color, type: "ring", grav: 0, drag: 1, w: 2 + power * 2 });
+    this.part({ x, y, life: 8, size: 20 + power * 26, color: "#fff", type: "star", grav: 0, drag: 1 });
+  },
+
+  dust(x, y, amount, dir = 0) {
+    for (let i = 0; i < amount; i++) {
+      this.part({
+        x: x + rand(-9, 9), y: y - rand(0, 3),
+        vx: (dir ? -dir * rand(0.4, 2.6) : rand(-1.8, 1.8)), vy: -rand(0.3, 2.5),
+        life: randInt(18, 38), size: rand(2, 5.4),
+        color: "rgba(150,175,205,0.5)", type: "puff", grav: 0.045, drag: 0.93
+      });
+    }
+    this.part({ x, y, life: 16, size: 8, color: "rgba(180,205,235,0.55)", type: "ring", grav: 0, drag: 1, w: 2 });
+  },
+
+  boom(x, y, color) {
+    for (let i = 0; i < 34; i++) {
+      const a = rand(0, Math.PI * 2), sp = rand(1.4, 8);
+      this.part({
+        x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+        life: randInt(16, 40), size: rand(1.6, 4),
+        color: Math.random() < 0.5 ? color : "#fff", type: "streak", grav: 0.1, drag: 0.93
+      });
+    }
+    this.part({ x, y, life: 26, size: 8, color: color, type: "ring", grav: 0, drag: 1, w: 5 });
+    this.part({ x, y, life: 14, size: 14, color: "#fff", type: "ring", grav: 0, drag: 1, w: 3 });
+    this.part({ x, y, life: 10, size: 46, color: color, type: "star", grav: 0, drag: 1 });
+  },
+
+  confetti(x, y, color) {
+    for (let i = 0; i < 90; i++) {
+      const a = rand(-Math.PI * 0.92, -Math.PI * 0.08);
+      const sp = rand(4, 14);
+      this.part({
+        x: x + rand(-40, 40), y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp,
+        life: randInt(70, 150), size: rand(3, 7),
+        color: pick([color, "#fff", COLORS.spark, color]),
+        type: "shard", grav: 0.17, drag: 0.992, spin: rand(-0.3, 0.3), ang: rand(0, 6.28)
+      });
+    }
+  },
+
+  update(scale) {
+    for (let i = this.parts.length - 1; i >= 0; i--) {
+      const p = this.parts[i];
+      p.life -= scale;
+      if (p.life <= 0) { this.parts.splice(i, 1); continue; }
+      p.x += p.vx * scale; p.y += p.vy * scale;
+      p.vy += p.grav * scale;
+      p.vx *= Math.pow(p.drag, scale); p.vy *= Math.pow(p.drag, scale);
+      p.ang += p.spin * scale;
+      if (p.type === "shard" && p.y > GROUND_Y - 1) { p.y = GROUND_Y - 1; p.vy *= -0.34; p.vx *= 0.7; p.spin *= 0.6; }
+    }
+    for (let i = this.ghosts.length - 1; i >= 0; i--) {
+      this.ghosts[i].life -= scale;
+      if (this.ghosts[i].life <= 0) this.ghosts.splice(i, 1);
+    }
+    for (let i = this.pops.length - 1; i >= 0; i--) {
+      const p = this.pops[i];
+      p.life -= scale;
+      if (p.life <= 0) { this.pops.splice(i, 1); continue; }
+      p.y += p.vy * scale; p.x += p.vx * scale; p.vy *= Math.pow(0.94, scale);
+    }
+    if (this.flash > 0) this.flash = Math.max(0, this.flash - 0.09 * scale);
+  }
+};
+
+/* ---------------------------- 6. 攝影機 ---------------------------- */
+const Cam = {
+  x: ARENA_W / 2, y: VIEW_H / 2, zoom: 1,
+  tx: ARENA_W / 2, ty: VIEW_H / 2, tz: 1,
+  shake: 0, ox: 0, oy: 0,
+
+  reset() {
+    this.x = this.tx = ARENA_W / 2;
+    this.y = this.ty = VIEW_H / 2;
+    this.zoom = this.tz = 1; this.shake = 0; this.ox = this.oy = 0;
+  },
+  kick(v) { this.shake = Math.min(26, this.shake + v); },
+
+  update(a, b) {
+    const mid = (a.x + b.x) / 2;
+    const d = Math.abs(a.x - b.x);
+    const minZ = VIEW_W / ARENA_W;
+    this.tz = clamp(VIEW_W / (d + 330), Math.max(0.72, minZ), 1.26);
+    const air = Math.max(0, GROUND_Y - Math.min(a.y, b.y));
+    this.ty = VIEW_H / 2 - clamp(air * 0.18, 0, 42);
+    const half = VIEW_W / (2 * this.tz);
+    this.tx = clamp(mid, half, ARENA_W - half);
+
+    this.zoom = lerp(this.zoom, this.tz, 0.075);
+    this.x = lerp(this.x, this.tx, 0.11);
+    this.y = lerp(this.y, this.ty, 0.09);
+
+    this.shake *= 0.86;
+    if (this.shake < 0.08) this.shake = 0;
+    const s = this.shake;
+    this.ox = rand(-s, s); this.oy = rand(-s, s) * 0.7;
+  },
+
+  apply(ctx) {
+    ctx.save();
+    ctx.translate(VIEW_W / 2 + this.ox, VIEW_H / 2 + this.oy);
+    ctx.scale(this.zoom, this.zoom);
+    ctx.translate(-this.x, -this.y);
+  }
+};
+
+/* ---------------------------- 7. 投射物 ---------------------------- */
+class Orb {
+  constructor(owner, x, y, vx, vy) {
+    this.owner = owner;
+    this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+    this.r = 10; this.life = 150; this.dmg = 11;
+    this.color = owner.color; this.soft = owner.soft;
+    this.dead = false; this.t = 0;
+  }
+  update() {
+    this.t++;
+    this.x += this.vx; this.y += this.vy;
+    this.vy += 0.075;
+    this.life--;
+    this.r = 10 + Math.sin(this.t * 0.4) * 1.2;
+
+    if (this.t % 2 === 0) {
+      FX.part({
+        x: this.x - this.vx * 0.5 + rand(-3, 3), y: this.y + rand(-3, 3),
+        vx: rand(-0.5, 0.5), vy: rand(-0.5, 0.5),
+        life: randInt(10, 20), size: rand(1.6, 4),
+        color: Math.random() < 0.5 ? this.color : this.soft,
+        type: "spark", grav: 0, drag: 0.9
+      });
+    }
+    if (this.life <= 0) { this.burst(); return; }
+    if (this.y + this.r >= GROUND_Y) { this.y = GROUND_Y - this.r; this.burst(); return; }
+    if (this.x < 8 || this.x > ARENA_W - 8) { this.burst(); return; }
+  }
+  burst() {
+    if (this.dead) return;
+    this.dead = true;
+    FX.boom(this.x, this.y, this.color);
+    Cam.kick(7);
+    Sound.boom();
+  }
+}
+
+/* ---------------------------- 8. 角色 ---------------------------- */
+class Fighter {
+  constructor(cfg) {
+    this.name = cfg.name;
+    this.tag = cfg.tag;
+    this.color = cfg.color;
+    this.soft = cfg.soft;
+    this.deep = cfg.deep;
+    this.controls = cfg.controls;
+    this.spawnX = cfg.x;
+    this.spawnFacing = cfg.facing;
+    this.reset();
+  }
+
+  reset() {
+    this.x = this.spawnX; this.y = GROUND_Y;
+    this.vx = 0; this.vy = 0;
+    this.facing = this.spawnFacing;
+    this.hp = 100; this.maxHp = 100;
+    this.chip = 100;                 // HUD 延遲血條
+    this.onGround = true;
+    this.jumps = 2;
+    this.state = "idle"; this.stateT = 0; this.animT = 0;
+    this.move = null; this.phase = "none"; this.moveT = 0;
+    this.hitDone = false;
+    this.chainIdx = 0; this.chainTimer = 0; this.buffered = false;
+    this.hitstun = 0;
+    this.cd = 0;
+    this.combo = 0; this.comboTimer = 0; this.comboShow = 0;
+    this.flashT = 0;
+    this.runDust = 0;
+    this.pose = targetPose(this);
+    this.J = null;
+    this.trail = [];
+    this.landLock = 0;
+    this.computeJoints();
+  }
+
+  get hurtbox() { return { x: this.x - 15, y: this.y - 78, w: 30, h: 78 }; }
+  get alive() { return this.hp > 0; }
+
+  setState(s) {
+    if (this.state === s) return;
+    this.state = s; this.stateT = 0;
+    if (s !== "attack" && s !== "dash") this.trail.length = 0;
+  }
+
+  /* --------- 動作啟動 --------- */
+  startMove(key) {
+    const m = MOVES[key];
+    this.move = { ...m, name: key };
+    this.phase = "startup";
+    this.moveT = 0;
+    this.hitDone = false;
+    this.buffered = false;
+    this.trail.length = 0;
+    this.setState(key === "dash" ? "dash" : "attack");
+    if (key === "dash") {
+      this.vx = 0;
+      Sound.dash();
+    }
+  }
+
+  tryAttack() {
+    if (this.chainTimer <= 0) this.chainIdx = 0;
+    this.startMove(CHAIN[this.chainIdx]);
+    this.chainIdx = (this.chainIdx + 1) % CHAIN.length;
+    this.chainTimer = 46;
+    const m = this.move;
+    if (m.sfx === "heavy") Sound.heavy(m.pitch); else Sound.whoosh(m.pitch);
+  }
+
+  trySpecial() {
+    if (this.cd > 0) return;
+    this.cd = SPECIAL_CD;
+    if (this.onGround) {
+      this.startMove("dash");
+    } else {
+      this.setState("airspecial");
+      this.moveT = 0;
+      this.vy = Math.min(this.vy, -1.2);
+      this.spawnOrbAt = 8;
+      Sound.orb();
+    }
+  }
+
+  /* --------- 每步邏輯 --------- */
+  update(foe, phase) {
+    this.animT += STEP;
+    this.stateT++;
+    if (this.cd > 0) this.cd--;
+    if (this.chainTimer > 0) this.chainTimer--;
+    if (this.comboTimer > 0) { this.comboTimer--; if (this.comboTimer === 0) this.combo = 0; }
+    if (this.comboShow > 0) this.comboShow--;
+    if (this.flashT > 0) this.flashT--;
+    if (this.landLock > 0) this.landLock--;
+
+    // HUD 延遲血條追上
+    if (this.chip > this.hp) this.chip = Math.max(this.hp, this.chip - 0.9);
+    else this.chip = this.hp;
+
+    if (phase === "over") {
+      this.physics(false);
+      this.blend();
+      this.computeJoints();
+      return;
+    }
+
+    const C = this.controls;
+    const canAct = this.hitstun <= 0 && this.state !== "attack" && this.state !== "dash"
+      && this.state !== "airspecial" && this.landLock <= 0;
+
+    /* 受擊硬直：完全無法操作 */
+    if (this.hitstun > 0) {
+      this.hitstun--;
+      this.setState("hitstun");
+      this.physics(false);
+      if (this.hitstun === 0) this.setState(this.onGround ? "idle" : "fall");
+      this.blend(); this.computeJoints();
+      return;
+    }
+
+    /* 自動面向對手（不在出手中時） */
+    if (canAct && Math.abs(foe.x - this.x) > 6) this.facing = sign(foe.x - this.x);
+
+    /* 動作進行中 */
+    if (this.state === "attack" || this.state === "dash") {
+      this.runMove(foe);
+      this.physics(this.state === "dash" && this.phase === "active");
+      this.blend(); this.computeJoints();
+      this.recordTrail();
+      return;
+    }
+    if (this.state === "airspecial") {
+      this.moveT++;
+      if (this.spawnOrbAt && this.moveT === this.spawnOrbAt) {
+        const hand = this.J.handF;
+        Game.orbs.push(new Orb(this, hand.x + this.facing * 6, hand.y, 6.4 * this.facing, 3.1));
+        FX.part({ x: hand.x, y: hand.y, life: 14, size: 12, color: this.color, type: "ring", grav: 0, drag: 1, w: 3 });
+        Cam.kick(3);
+      }
+      if (this.moveT > 26) this.setState(this.onGround ? "land" : "fall");
+      this.physics(false);
+      this.blend(); this.computeJoints();
+      return;
+    }
+
+    /* 一般操作 */
+    let ax = 0;
+    if (Input.down(C.left)) ax -= 1;
+    if (Input.down(C.right)) ax += 1;
+
+    if (canAct || this.state === "land") {
+      const ctrl = this.onGround ? 1 : PHYS.airControl;
+      if (ax !== 0) this.vx += ax * PHYS.accel * ctrl;
+
+      // 跳躍（含二段跳）
+      if (Input.pressed(C.jump) && this.jumps > 0 && this.landLock <= 0) {
+        const first = this.jumps === 2 && this.onGround;
+        this.vy = first ? PHYS.jumpV : PHYS.airJumpV;
+        this.jumps--;
+        this.onGround = false;
+        this.setState("jump");
+        Sound.jump();
+        FX.dust(this.x, GROUND_Y, first ? 9 : 5);
+        if (!first) {
+          FX.part({ x: this.x, y: this.y - 26, life: 16, size: 9, color: this.soft, type: "ring", grav: 0, drag: 1, w: 2.4 });
+        }
+      }
+      if (Input.pressed(C.attack)) this.tryAttack();
+      else if (Input.pressed(C.special)) this.trySpecial();
+    }
+
+    this.physics(false);
+
+    // 狀態選擇
+    if (this.state !== "attack" && this.state !== "dash" && this.state !== "airspecial") {
+      if (!this.onGround) this.setState(this.vy < 0 ? "jump" : "fall");
+      else if (this.state === "land" && this.stateT < 7) { /* 保持著地緩衝 */ }
+      else if (Math.abs(this.vx) > 0.75 && ax !== 0) this.setState("run");
+      else this.setState("idle");
+    }
+
+    // 跑動塵土
+    if (this.state === "run" && this.onGround) {
+      this.runDust--;
+      if (this.runDust <= 0) {
+        this.runDust = 7;
+        FX.dust(this.x - this.facing * 6, GROUND_Y, 2, this.facing);
+      }
+      if (Math.abs(this.vx) > 3.9 && this.stateT % 4 === 0) FX.ghost(this, 0.16);
+    }
+
+    this.blend();
+    this.computeJoints();
+  }
+
+  /** 攻擊動作的三段：startup → active → recover */
+  runMove(foe) {
+    const m = this.move;
+    this.moveT++;
+
+    if (this.phase === "startup") {
+      if (m.name === "dash" && this.moveT === 1) FX.dust(this.x, GROUND_Y, 8, this.facing);
+      if (this.moveT >= m.startup) { this.phase = "active"; this.moveT = 0; }
+    } else if (this.phase === "active") {
+      if (m.name === "dash") {
+        const k = 1 - this.moveT / m.active;
+        this.vx = this.facing * (11.4 * k + 1.6);
+        if (this.moveT % 2 === 0) FX.ghost(this, 0.4);
+        if (this.moveT % 3 === 0) FX.dust(this.x, GROUND_Y, 2, this.facing);
+      } else if (m.name === "upper" && this.moveT === 1) {
+        this.vy = -3.4; this.onGround = false;
+      } else if (this.onGround) {
+        this.vx += this.facing * 0.55;   // 出手時微微前壓，打擊感更足
+      }
+      if (this.moveT >= m.active) { this.phase = "recover"; this.moveT = 0; }
+    } else {
+      if (this.moveT >= m.recover) {
+        this.move = null; this.phase = "none";
+        if (this.buffered) { this.tryAttack(); return; }
+        this.setState(this.onGround ? "idle" : "fall");
+        return;
+      }
+      // 連段緩衝：收招後段可以接下一擊
+      if (this.moveT > m.recover * 0.35 && Input.pressed(this.controls.attack) && this.move.name !== "dash") {
+        this.buffered = true;
+      }
+      if (this.moveT > m.recover * 0.35 && Input.pressed(this.controls.special)) {
+        this.move = null; this.phase = "none";
+        this.setState(this.onGround ? "idle" : "fall");
+        this.trySpecial();
+        return;
+      }
+    }
+  }
+
+  recordTrail() {
+    if (!this.move) return;
+    const src = this.J[this.move.src] || this.J.handF;
+    if (this.phase === "active" || (this.phase === "recover" && this.moveT < 4)) {
+      this.trail.push({ x: src.x, y: src.y });
+      if (this.trail.length > 7) this.trail.shift();
+    } else if (this.trail.length) {
+      this.trail.shift();
+    }
+  }
+
+  /** 目前生效的 hitbox（沒有就 null） */
+  hitbox() {
+    if (!this.move || this.phase !== "active" || this.hitDone) return null;
+    const j = this.J[this.move.src];
+    if (!j) return null;
+    return { x: j.x + this.facing * 3, y: j.y, r: this.move.r, m: this.move };
+  }
+
+  takeHit(m, fromDir, attacker) {
+    this.hp = Math.max(0, this.hp - m.dmg);
+    this.hitstun = m.hitstun;
+    this.vx = fromDir * m.kbx;
+    this.vy = m.kby;
+    if (m.kby < -0.5) { this.onGround = false; this.jumps = Math.min(this.jumps, 1); }
+    this.move = null; this.phase = "none"; this.buffered = false;
+    this.chainIdx = 0;
+    this.flashT = 7;
+    this.setState("hitstun");
+    this.trail.length = 0;
+  }
+
+  physics(isDash) {
+    // 重力
+    if (!this.onGround) {
+      this.vy += PHYS.gravity;
+      if (this.vy > PHYS.maxFall) this.vy = PHYS.maxFall;
+    }
+    // 摩擦
+    if (!isDash) {
+      this.vx *= this.onGround ? PHYS.groundFriction : PHYS.airFriction;
+      const lim = this.state === "hitstun" ? 99 : PHYS.maxSpeed;
+      this.vx = clamp(this.vx, -lim, lim);
+      if (Math.abs(this.vx) < 0.04) this.vx = 0;
+    }
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // 邊界
+    if (this.x < WALL_PAD) {
+      this.x = WALL_PAD;
+      if (this.vx < -2.4) { FX.dust(this.x, this.y - 30, 6, -1); Cam.kick(3); }
+      this.vx = Math.abs(this.vx) > 4 ? -this.vx * 0.34 : 0;
+    }
+    if (this.x > ARENA_W - WALL_PAD) {
+      this.x = ARENA_W - WALL_PAD;
+      if (this.vx > 2.4) { FX.dust(this.x, this.y - 30, 6, 1); Cam.kick(3); }
+      this.vx = Math.abs(this.vx) > 4 ? -this.vx * 0.34 : 0;
+    }
+    if (this.y < 60) { this.y = 60; this.vy = Math.max(this.vy, 0); }
+
+    // 落地判定
+    if (this.y >= GROUND_Y) {
+      const impact = this.vy;
+      this.y = GROUND_Y;
+      this.vy = 0;
+      if (!this.onGround) {
+        this.onGround = true;
+        this.jumps = 2;
+        if (impact > 4) {
+          FX.dust(this.x, GROUND_Y, Math.min(16, 4 + impact * 0.9), 0);
+          Cam.kick(Math.min(6, impact * 0.35));
+          Sound.land();
+        }
+        if (this.state === "hitstun") {
+          if (impact > 8) { FX.impact(this.x, GROUND_Y - 8, 0, 0.5, this.color); Cam.kick(6); }
+          this.vx *= 0.4;
+        } else if (this.state !== "attack" && this.state !== "dash"
+          && this.state !== "ko" && this.state !== "win") {
+          this.setState("land");
+          this.landLock = impact > 9 ? 5 : 0;
+        }
+      }
+    } else if (this.y < GROUND_Y - 0.5) {
+      this.onGround = false;
+    }
+  }
+
+  blend() {
+    const tp = targetPose(this);
+    let k = 0.22;
+    if (this.state === "attack" || this.state === "dash") k = 0.52;
+    else if (this.state === "hitstun") k = 0.46;
+    else if (this.state === "land") k = 0.4;
+    else if (this.state === "ko") k = 0.16;
+    else if (this.state === "run") k = 0.34;
+    for (const key of POSE_KEYS) this.pose[key] = lerp(this.pose[key], tp[key], k);
+  }
+
+  /** 由姿勢角度算出所有關節世界座標（物理與繪圖共用同一份資料） */
+  computeJoints() {
+    const p = this.pose, fc = this.facing, sq = p.squash;
+    const hip = { x: this.x, y: this.y + p.hipY * sq };
+
+    const limb = (ox, oy, len, ang) => ({
+      x: ox + Math.sin(ang) * len * fc,
+      y: oy + Math.cos(ang) * len
+    });
+
+    const shoulder = {
+      x: hip.x + Math.sin(p.lean) * SK.torso * fc,
+      y: hip.y - Math.cos(p.lean) * SK.torso * sq
+    };
+    const head = {
+      x: shoulder.x + Math.sin(p.lean + p.headTilt) * SK.neck * fc,
+      y: shoulder.y - Math.cos(p.lean + p.headTilt) * SK.neck
+    };
+
+    const elbowF = limb(shoulder.x, shoulder.y, SK.upper, p.aFs);
+    const handF = limb(elbowF.x, elbowF.y, SK.fore, p.aFe);
+    const elbowB = limb(shoulder.x, shoulder.y, SK.upper, p.aBs);
+    const handB = limb(elbowB.x, elbowB.y, SK.fore, p.aBe);
+
+    const kneeF = limb(hip.x, hip.y, SK.thigh, p.lFh);
+    const footF = limb(kneeF.x, kneeF.y, SK.shin, p.lFk);
+    const kneeB = limb(hip.x, hip.y, SK.thigh, p.lBh);
+    const footB = limb(kneeB.x, kneeB.y, SK.shin, p.lBk);
+
+    let J = { hip, shoulder, head, elbowF, handF, elbowB, handB, kneeF, footF, kneeB, footB };
+
+    // 整體旋轉（衝刺前傾、受擊後仰、KO 倒地）
+    if (Math.abs(p.rot) > 0.001) {
+      const ang = p.rot * fc;
+      const px = this.x, py = this.y;
+      const out = {};
+      for (const k in J) out[k] = rotPoint(J[k], px, py, ang);
+      J = out;
+    }
+
+    // 在地面時把最低的腳貼齊地面，避免浮空或陷入地板
+    if (this.onGround && this.state !== "ko") {
+      let low = -Infinity;
+      for (const k of ["footF", "footB"]) low = Math.max(low, J[k].y);
+      const dy = this.y - low;
+      if (Math.abs(dy) > 0.01) for (const k in J) J[k].y += dy;
+    }
+
+    this.J = J;
+  }
+
+  snapshot() {
+    const o = {};
+    for (const k in this.J) o[k] = { x: this.J[k].x, y: this.J[k].y };
+    return o;
+  }
+}
+
+/* ---------------------------- 9. 繪圖 ---------------------------- */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+function strokeSkeleton(J, lw) {
+  ctx.lineWidth = lw;
+  ctx.beginPath();
+  // 軀幹
+  ctx.moveTo(J.hip.x, J.hip.y); ctx.lineTo(J.shoulder.x, J.shoulder.y);
+  // 脖子
+  ctx.moveTo(J.shoulder.x, J.shoulder.y); ctx.lineTo(J.head.x, J.head.y);
+  // 後手 / 後腳（先畫，做出深度）
+  ctx.moveTo(J.shoulder.x, J.shoulder.y); ctx.lineTo(J.elbowB.x, J.elbowB.y); ctx.lineTo(J.handB.x, J.handB.y);
+  ctx.moveTo(J.hip.x, J.hip.y); ctx.lineTo(J.kneeB.x, J.kneeB.y); ctx.lineTo(J.footB.x, J.footB.y);
+  // 前手 / 前腳
+  ctx.moveTo(J.shoulder.x, J.shoulder.y); ctx.lineTo(J.elbowF.x, J.elbowF.y); ctx.lineTo(J.handF.x, J.handF.y);
+  ctx.moveTo(J.hip.x, J.hip.y); ctx.lineTo(J.kneeF.x, J.kneeF.y); ctx.lineTo(J.footF.x, J.footF.y);
+  ctx.stroke();
+}
+
+function drawFigure(J, color, soft, opt = {}) {
+  const alpha = opt.alpha != null ? opt.alpha : 1;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  // 背後暗色描邊：讓火柴人在深色背景上依然清楚
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(4,7,12,0.72)";
+  strokeSkeleton(J, 9.5);
+  ctx.beginPath();
+  ctx.arc(J.head.x, J.head.y, SK.headR + 2.4, 0, 6.2832);
+  ctx.stroke();
+
+  // 主體
+  ctx.shadowColor = color;
+  ctx.shadowBlur = opt.glow != null ? opt.glow : 11;
+  ctx.strokeStyle = opt.override || color;
+  strokeSkeleton(J, 4.7);
+
+  // 頭
+  ctx.beginPath();
+  ctx.arc(J.head.x, J.head.y, SK.headR, 0, 6.2832);
+  ctx.fillStyle = "rgba(8,12,18,0.9)";
+  ctx.fill();
+  ctx.lineWidth = 4.2;
+  ctx.stroke();
+
+  // 胸口能量點
+  ctx.shadowBlur = 14;
+  ctx.beginPath();
+  const cx = lerp(J.hip.x, J.shoulder.x, 0.62), cy = lerp(J.hip.y, J.shoulder.y, 0.62);
+  ctx.arc(cx, cy, 2.4, 0, 6.2832);
+  ctx.fillStyle = opt.override || soft;
+  ctx.fill();
+
+  ctx.restore();
+}
+
+/** 拳/腳的殘影弧線：連段感的關鍵 */
+function drawTrail(f) {
+  if (f.trail.length < 2) return;
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.shadowColor = f.soft;
+  ctx.shadowBlur = 12;
+  for (let i = 1; i < f.trail.length; i++) {
+    const a = f.trail[i - 1], b = f.trail[i];
+    const t = i / f.trail.length;
+    ctx.globalAlpha = 0.10 + t * 0.45;
+    ctx.lineWidth = 2 + t * (f.move && f.move.special ? 14 : 9);
+    ctx.strokeStyle = t > 0.7 ? "#fff" : f.soft;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawShadow(f) {
+  const h = clamp(1 - (GROUND_Y - f.y) / 240, 0.18, 1);
+  ctx.save();
+  ctx.globalAlpha = 0.42 * h;
+  ctx.fillStyle = "#000";
+  ctx.beginPath();
+  ctx.ellipse(f.x, GROUND_Y + 3, 22 * h, 5.4 * h, 0, 0, 6.2832);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* 場景：遠景柱列 + 地板網格 + 聚光燈 */
+function drawArena(time) {
+  // 天空
+  const sky = ctx.createLinearGradient(0, -120, 0, GROUND_Y);
+  sky.addColorStop(0, "#080c12");
+  sky.addColorStop(0.55, "#131b26");
+  sky.addColorStop(1, "#1b2635");
+  ctx.fillStyle = sky;
+  ctx.fillRect(-400, -300, ARENA_W + 800, GROUND_Y + 300);
+
+  // 中央聚光
+  const g = ctx.createRadialGradient(ARENA_W / 2, GROUND_Y - 40, 20, ARENA_W / 2, GROUND_Y - 40, 520);
+  g.addColorStop(0, "rgba(120,170,235,0.16)");
+  g.addColorStop(1, "rgba(120,170,235,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(-400, -300, ARENA_W + 800, GROUND_Y + 300);
+
+  // 遠景柱列（視差：跟著鏡頭少量偏移）
+  const par = (Cam.x - ARENA_W / 2) * 0.24;
+  ctx.save();
+  ctx.translate(-par, 0);
+  ctx.fillStyle = "#0e151f";
+  for (let i = -2; i < 14; i++) {
+    const x = 60 + i * 104;
+    const h = 150 + ((i * 37) % 60);
+    ctx.fillRect(x, GROUND_Y - h, 46, h);
+  }
+  ctx.fillStyle = "rgba(90,140,200,0.10)";
+  for (let i = -2; i < 14; i++) {
+    const x = 60 + i * 104;
+    const h = 150 + ((i * 37) % 60);
+    ctx.fillRect(x + 8, GROUND_Y - h + 16, 6, h - 40);
+    ctx.fillRect(x + 30, GROUND_Y - h + 16, 6, h - 40);
+  }
+  ctx.restore();
+
+  // 中景橫樑
+  ctx.strokeStyle = "rgba(70,110,160,0.20)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(-400, GROUND_Y - 176);
+  ctx.lineTo(ARENA_W + 400, GROUND_Y - 176);
+  ctx.stroke();
+
+  // 地板
+  const fl = ctx.createLinearGradient(0, GROUND_Y, 0, GROUND_Y + 90);
+  fl.addColorStop(0, "#243244");
+  fl.addColorStop(0.25, "#182231");
+  fl.addColorStop(1, "#0a0e15");
+  ctx.fillStyle = fl;
+  ctx.fillRect(-400, GROUND_Y, ARENA_W + 800, 200);
+
+  // 地板透視線
+  ctx.strokeStyle = "rgba(90,140,200,0.14)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let i = 0; i <= 26; i++) {
+    const x = i * (ARENA_W / 26);
+    ctx.moveTo(x, GROUND_Y);
+    ctx.lineTo(x + (x - ARENA_W / 2) * 0.5, GROUND_Y + 90);
+  }
+  for (let i = 1; i <= 4; i++) {
+    const y = GROUND_Y + i * i * 5.4;
+    ctx.moveTo(-400, y);
+    ctx.lineTo(ARENA_W + 400, y);
+  }
+  ctx.stroke();
+
+  // 地面亮邊
+  ctx.strokeStyle = "rgba(150,205,255,0.55)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-400, GROUND_Y + 1);
+  ctx.lineTo(ARENA_W + 400, GROUND_Y + 1);
+  ctx.stroke();
+
+  // 擂台邊界標記
+  ctx.strokeStyle = "rgba(255,255,255,0.10)";
+  ctx.lineWidth = 3;
+  [WALL_PAD - 16, ARENA_W - WALL_PAD + 16].forEach(x => {
+    ctx.beginPath();
+    ctx.moveTo(x, GROUND_Y);
+    ctx.lineTo(x, GROUND_Y - 210);
+    ctx.stroke();
+  });
+
+  // 浮塵
+  ctx.fillStyle = "rgba(170,205,240,0.20)";
+  for (let i = 0; i < 30; i++) {
+    const x = ((i * 137.5 + time * 8 * (1 + (i % 3) * 0.3)) % (ARENA_W + 200)) - 100;
+    const y = 60 + ((i * 61.7 + Math.sin(time * 0.5 + i) * 24) % 300);
+    const s = 1 + (i % 3) * 0.6;
+    ctx.fillRect(x, y, s, s);
+  }
+}
+
+function drawParticles() {
+  for (const p of FX.parts) {
+    const t = p.life / p.max;
+    ctx.save();
+    ctx.globalAlpha = clamp(t, 0, 1);
+    if (p.type === "ring") {
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = p.w * t;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size + (1 - t) * (p.size * 4.6), 0, 6.2832);
+      ctx.stroke();
+    } else if (p.type === "star") {
+      const r = p.size * (0.4 + (1 - t) * 1.1);
+      ctx.strokeStyle = p.color;
+      ctx.lineWidth = 2.6 * t;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.moveTo(p.x - r, p.y); ctx.lineTo(p.x + r, p.y);
+      ctx.moveTo(p.x, p.y - r * 0.62); ctx.lineTo(p.x, p.y + r * 0.62);
+      ctx.stroke();
+    } else if (p.type === "streak") {
+      const sp = Math.hypot(p.vx, p.vy);
+      ctx.strokeStyle = p.color;
+      ctx.lineCap = "round";
+      ctx.lineWidth = p.size * t;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x - p.vx * clamp(sp * 0.5, 0.6, 2.4), p.y - p.vy * clamp(sp * 0.5, 0.6, 2.4));
+      ctx.stroke();
+    } else if (p.type === "puff") {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * (0.6 + (1 - t) * 1.4), 0, 6.2832);
+      ctx.fill();
+    } else if (p.type === "shard") {
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.ang);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size * 0.5, -p.size * 0.22, p.size, p.size * 0.44);
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color; ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * t, 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function drawOrbs() {
+  for (const o of Game.orbs) {
+    ctx.save();
+    const pulse = 1 + Math.sin(o.t * 0.5) * 0.08;
+    const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r * 3.2 * pulse);
+    g.addColorStop(0, "#ffffff");
+    g.addColorStop(0.32, o.soft);
+    g.addColorStop(0.6, o.color);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.r * 3.2 * pulse, 0, 6.2832);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.r * 0.72, 0, 6.2832);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawPops() {
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const p of FX.pops) {
+    const t = p.life / p.max;
+    const grow = p.big ? 1.25 : 1;
+    ctx.globalAlpha = clamp(t * 1.6, 0, 1);
+    const size = (p.big ? 30 : 21) * (1 + (1 - t) * 0.12) * grow;
+    ctx.font = `800 ${size}px "Barlow Condensed", "Noto Sans TC", sans-serif`;
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(4,7,12,0.85)";
+    ctx.strokeText(p.text, p.x, p.y);
+    ctx.fillStyle = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 12;
+    ctx.fillText(p.text, p.x, p.y);
+    ctx.shadowBlur = 0;
+  }
+  ctx.restore();
+}
+
+/* --------------------------- 10. HUD --------------------------- */
+const HUD = {
+  /** 斜切平行四邊形路徑 */
+  para(x, y, w, h, skew, dir) {
+    ctx.beginPath();
+    if (dir > 0) {
+      ctx.moveTo(x, y); ctx.lineTo(x + w, y);
+      ctx.lineTo(x + w - skew, y + h); ctx.lineTo(x - skew, y + h);
+    } else {
+      ctx.moveTo(x + skew, y); ctx.lineTo(x + w + skew, y);
+      ctx.lineTo(x + w, y + h); ctx.lineTo(x, y + h);
+    }
+    ctx.closePath();
+  },
+
+  bar(f, dir) {
+    const W = 306, H = 21, SKEW = 11;
+    const x = dir > 0 ? 26 : VIEW_W - 26 - W;
+    const y = 34;
+
+    ctx.save();
+    ctx.textBaseline = "alphabetic";
+
+    // 外框
+    ctx.save();
+    this.para(x - 3, y - 3, W + 6, H + 6, SKEW, dir);
+    ctx.fillStyle = "rgba(6,10,16,0.82)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(150,185,225,0.28)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+
+    // 內軌
+    ctx.save();
+    this.para(x, y, W, H, SKEW, dir);
+    ctx.clip();
+    ctx.fillStyle = "#0f151f";
+    ctx.fillRect(x - 20, y - 4, W + 40, H + 8);
+
+    const chipW = W * (f.chip / f.maxHp);
+    const hpW = W * (f.hp / f.maxHp);
+
+    // 延遲白條（剛受到的傷害）
+    ctx.fillStyle = "rgba(255,235,190,0.75)";
+    if (dir > 0) ctx.fillRect(x - 20, y - 4, chipW + 20, H + 8);
+    else ctx.fillRect(x + W - chipW, y - 4, chipW + 20, H + 8);
+
+    // 主血條
+    const g = ctx.createLinearGradient(x, y, x, y + H);
+    g.addColorStop(0, f.soft);
+    g.addColorStop(0.42, f.color);
+    g.addColorStop(1, f.deep);
+    ctx.fillStyle = g;
+    if (dir > 0) ctx.fillRect(x - 20, y - 4, hpW + 20, H + 8);
+    else ctx.fillRect(x + W - hpW, y - 4, hpW + 20, H + 8);
+
+    // 血量低於三成時脈動警示
+    if (f.hp > 0 && f.hp <= 30) {
+      ctx.globalAlpha = 0.22 + Math.sin(Game.frame * 0.22) * 0.18;
+      ctx.fillStyle = "#fff";
+      if (dir > 0) ctx.fillRect(x - 20, y - 4, hpW + 20, H + 8);
+      else ctx.fillRect(x + W - hpW, y - 4, hpW + 20, H + 8);
+      ctx.globalAlpha = 1;
+    }
+
+    // 光澤
+    const gl = ctx.createLinearGradient(x, y, x, y + H * 0.5);
+    gl.addColorStop(0, "rgba(255,255,255,0.34)");
+    gl.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = gl;
+    ctx.fillRect(x - 20, y - 4, W + 40, H * 0.5);
+
+    // 刻度
+    ctx.strokeStyle = "rgba(6,10,16,0.42)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let i = 1; i < 5; i++) {
+      const px = x + (W / 5) * i;
+      ctx.moveTo(px, y - 4);
+      ctx.lineTo(px - SKEW, y + H + 4);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    // 名稱與數值
+    ctx.font = '700 15px "Barlow Condensed", "Noto Sans TC", sans-serif';
+    ctx.fillStyle = "#dce7f4";
+    ctx.textAlign = dir > 0 ? "left" : "right";
+    const nameX = dir > 0 ? x + 2 : x + W - 2;
+    ctx.fillText(f.name.toUpperCase(), nameX, y - 8);
+
+    ctx.font = '800 17px "Barlow Condensed", sans-serif';
+    ctx.fillStyle = f.hp <= 30 ? "#ffd0c8" : "#9fb4cc";
+    ctx.textAlign = dir > 0 ? "right" : "left";
+    ctx.fillText(String(Math.ceil(f.hp)).padStart(3, "0"), dir > 0 ? x + W - 2 : x + 2, y - 8);
+
+    // 特殊技冷卻
+    const cw = 132, ch = 5, cy = y + H + 9;
+    const cx = dir > 0 ? x - SKEW : x + W - cw;
+    ctx.fillStyle = "rgba(255,255,255,0.10)";
+    ctx.fillRect(cx, cy, cw, ch);
+    const ratio = 1 - f.cd / SPECIAL_CD;
+    ctx.fillStyle = f.cd > 0 ? "rgba(255,255,255,0.35)" : COLORS.spark;
+    if (f.cd === 0) { ctx.shadowColor = COLORS.spark; ctx.shadowBlur = 8; }
+    ctx.fillRect(dir > 0 ? cx : cx + cw * (1 - ratio), cy, cw * ratio, ch);
+    ctx.shadowBlur = 0;
+
+    ctx.font = '600 12px "Barlow Condensed", "Noto Sans TC", sans-serif';
+    ctx.fillStyle = f.cd > 0 ? "#6f8299" : COLORS.spark;
+    ctx.textAlign = dir > 0 ? "left" : "right";
+    ctx.fillText(
+      f.cd > 0 ? `特殊技 ${(f.cd / 60).toFixed(1)}s` : "特殊技 就緒",
+      dir > 0 ? cx : cx + cw, cy + 17
+    );
+
+    // 連段數
+    if (f.combo >= 2 && f.comboTimer > 0) {
+      const t = clamp(f.comboShow / 12, 0, 1);
+      ctx.save();
+      ctx.textAlign = dir > 0 ? "left" : "right";
+      const bx = dir > 0 ? x + 6 : x + W - 6;
+      ctx.font = `800 ${26 + t * 9}px "Barlow Condensed", sans-serif`;
+      ctx.fillStyle = "#fff";
+      ctx.shadowColor = f.color; ctx.shadowBlur = 14;
+      ctx.fillText(`${f.combo} HIT`, bx, y + H + 46);
+      ctx.restore();
+    }
+
+    ctx.restore();
+  },
+
+  timer() {
+    const t = Math.max(0, Math.ceil(Game.time));
+    const low = t <= 10 && Game.phase === "fight";
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.beginPath();
+    ctx.moveTo(VIEW_W / 2 - 42, 26); ctx.lineTo(VIEW_W / 2 + 42, 26);
+    ctx.lineTo(VIEW_W / 2 + 34, 72); ctx.lineTo(VIEW_W / 2 - 34, 72);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(6,10,16,0.82)";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(150,185,225,0.26)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.font = '800 34px "Barlow Condensed", sans-serif';
+    ctx.fillStyle = low ? "#ff6a5c" : "#e6eef8";
+    if (low) {
+      ctx.shadowColor = "#ff5347";
+      ctx.shadowBlur = 12 + Math.sin(Game.frame * 0.35) * 8;
+    }
+    ctx.fillText(String(t).padStart(2, "0"), VIEW_W / 2, 50);
+    ctx.restore();
+  },
+
+  /** 回合開始的 READY / FIGHT! 提示 */
+  announce() {
+    if (Game.phase !== "intro") return;
+    const p = Game.introT;
+    let text = "", sub = "";
+    if (p < 60) { text = "READY?"; sub = "準備"; }
+    else { text = "FIGHT!"; sub = "開打"; }
+    const local = p < 60 ? p / 60 : (p - 60) / 45;
+    const a = local < 0.18 ? local / 0.18 : (local > 0.85 ? (1 - local) / 0.15 : 1);
+    const scale = 1 + (1 - clamp(local * 5, 0, 1)) * 0.5;
+
+    ctx.save();
+    ctx.globalAlpha = clamp(a, 0, 1);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.translate(VIEW_W / 2, VIEW_H / 2 - 40);
+    ctx.scale(scale, scale);
+    ctx.font = '800 62px "Barlow Condensed", sans-serif';
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "rgba(4,7,12,0.8)";
+    ctx.strokeText(text, 0, 0);
+    ctx.fillStyle = p < 60 ? "#e6eef8" : COLORS.spark;
+    ctx.shadowColor = p < 60 ? "#9ec5ee" : COLORS.spark;
+    ctx.shadowBlur = 22;
+    ctx.fillText(text, 0, 0);
+    ctx.shadowBlur = 0;
+    ctx.font = '700 17px "Noto Sans TC", sans-serif';
+    ctx.fillStyle = "rgba(220,232,246,0.75)";
+    ctx.fillText(sub, 0, 34);
+    ctx.restore();
+  },
+
+  vignette() {
+    const g = ctx.createRadialGradient(VIEW_W / 2, VIEW_H / 2, VIEW_H * 0.42, VIEW_W / 2, VIEW_H / 2, VIEW_H * 0.95);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, "rgba(0,0,0,0.62)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+  },
+
+  fps() {
+    ctx.save();
+    ctx.font = '600 11px "Barlow Condensed", sans-serif';
+    ctx.fillStyle = "rgba(140,165,195,0.5)";
+    ctx.textAlign = "left";
+    ctx.fillText(`${Game.fps} FPS`, 12, VIEW_H - 12);
+    ctx.restore();
+  }
+};
+
+/* --------------------------- 11. 遊戲 --------------------------- */
+const Game = {
+  p1: null, p2: null,
+  orbs: [],
+  phase: "menu",     // menu | intro | fight | over
+  time: ROUND_TIME,
+  frame: 0,
+  hitstop: 0,
+  timeScale: 1,
+  introT: 0,
+  overT: 0,
+  winner: null,
+  fps: 60,
+  paused: false,
+
+  init() {
+    this.p1 = new Fighter({
+      name: "Player 1", tag: "P1", color: COLORS.p1, soft: COLORS.p1soft, deep: COLORS.p1deep,
+      controls: CONTROLS.p1, x: ARENA_W / 2 - 150, facing: 1
+    });
+    this.p2 = new Fighter({
+      name: "Player 2", tag: "P2", color: COLORS.p2, soft: COLORS.p2soft, deep: COLORS.p2deep,
+      controls: CONTROLS.p2, x: ARENA_W / 2 + 150, facing: -1
+    });
+    Cam.reset();
+  },
+
+  reset(startImmediately) {
+    this.p1.reset();
+    this.p2.reset();
+    this.orbs.length = 0;
+    FX.reset();
+    Cam.reset();
+    this.time = ROUND_TIME;
+    this.hitstop = 0;
+    this.timeScale = 1;
+    this.introT = 0;
+    this.overT = 0;
+    this.winner = null;
+    this.paused = false;
+    Input.releaseAll();
+    if (startImmediately) {
+      this.phase = "intro";
+      Sound.bell();
+      UI.hideAll();
+    } else {
+      this.phase = "menu";
+      UI.show("menu");
+    }
+  },
+
+  start() {
+    Sound.unlock();
+    this.reset(true);
+  },
+
+  pause(on) {
+    if (this.phase === "menu" || this.phase === "over") return;
+    this.paused = on;
+    if (on) { UI.show("pause"); Input.releaseAll(); }
+    else UI.hideAll();
+  },
+
+  finish(winner, reason) {
+    this.phase = "over";
+    this.overT = 0;
+    this.winner = winner;
+    this.reason = reason;
+    this.timeScale = 0.34;
+    FX.flash = 1;
+    FX.flashColor = "#fff";
+    Cam.kick(22);
+    Sound.ko();
+
+    const loser = winner === this.p1 ? this.p2 : (winner === this.p2 ? this.p1 : null);
+    if (!winner) {
+      for (const f of [this.p1, this.p2]) {
+        if (!f.alive) { f.setState("ko"); f.hitstun = 0; FX.impact(f.x, f.y - 40, 0, 1.1, f.color); }
+      }
+    }
+    if (loser) {
+      loser.setState("ko");
+      loser.hitstun = 0;
+      FX.impact(loser.x, loser.y - 40, sign(loser.x - (winner ? winner.x : 0)), 1.4, loser.color);
+    }
+    if (winner) {
+      winner.setState("win");
+      winner.vx = 0;
+      FX.confetti(winner.x, GROUND_Y - 210, winner.color);
+    }
+  },
+
+  /* ---------- 一次固定步進 ---------- */
+  step() {
+    this.frame++;
+
+    // 命中定格（hitstop）：畫面暫停一瞬間，打擊感的來源
+    if (this.hitstop > 0) {
+      this.hitstop--;
+      FX.update(0.35);
+      Cam.update(this.p1, this.p2);
+      Input.clearEdge();
+      return;
+    }
+
+    if (this.phase === "intro") {
+      this.introT++;
+      this.p1.update(this.p2, "over");
+      this.p2.update(this.p1, "over");
+      if (this.introT === 60) Sound.bell();
+      if (this.introT > 105) this.phase = "fight";
+      FX.update(1);
+      Cam.update(this.p1, this.p2);
+      Input.clearEdge();
+      return;
+    }
+
+    if (this.phase === "fight") {
+      this.time -= STEP;
+      this.p1.update(this.p2, "fight");
+      this.p2.update(this.p1, "fight");
+      this.separate();
+      this.resolveHits();
+      this.updateOrbs();
+
+      if (!this.p1.alive || !this.p2.alive) {
+        const w = !this.p1.alive && !this.p2.alive ? null
+          : (!this.p1.alive ? this.p2 : this.p1);
+        this.finish(w, "ko");
+      } else if (this.time <= 0) {
+        this.time = 0;
+        const w = this.p1.hp === this.p2.hp ? null : (this.p1.hp > this.p2.hp ? this.p1 : this.p2);
+        this.finish(w, "time");
+      }
+    } else if (this.phase === "over") {
+      this.overT++;
+      this.p1.update(this.p2, "over");
+      this.p2.update(this.p1, "over");
+      this.updateOrbs();
+      if (this.overT === 18) FX.flash = 0.5;
+      if (this.overT > 40) this.timeScale = lerp(this.timeScale, 1, 0.05);
+      if (this.overT === 74) UI.showWin();
+      if (this.overT > 74 && this.overT % 34 === 0 && this.winner) {
+        FX.confetti(rand(Cam.x - 240, Cam.x + 240), GROUND_Y - 230, this.winner.color);
+      }
+    }
+
+    FX.update(1);
+    Cam.update(this.p1, this.p2);
+    Input.clearEdge();
+  },
+
+  /** 角色互推，避免完全重疊 */
+  separate() {
+    const a = this.p1, b = this.p2;
+    const dx = b.x - a.x;
+    const min = 34;
+    if (Math.abs(dx) < min) {
+      const push = (min - Math.abs(dx)) / 2;
+      const d = dx === 0 ? 1 : sign(dx);
+      const aDash = a.state === "dash", bDash = b.state === "dash";
+      const wa = aDash && !bDash ? 0.15 : (bDash && !aDash ? 0.85 : 0.5);
+      a.x -= d * push * 2 * wa;
+      b.x += d * push * 2 * (1 - wa);
+      a.x = clamp(a.x, WALL_PAD, ARENA_W - WALL_PAD);
+      b.x = clamp(b.x, WALL_PAD, ARENA_W - WALL_PAD);
+    }
+  },
+
+  /** 攻擊判定：hitbox × hurtbox，含互擊（clash） */
+  resolveHits() {
+    const A = this.p1, B = this.p2;
+    const ha = A.hitbox(), hb = B.hitbox();
+
+    // 拳頭對撞 → 雙方彈開，不扣血
+    if (ha && hb && dist2(ha.x, ha.y, hb.x, hb.y) < Math.pow(ha.r + hb.r, 2)) {
+      const mx = (ha.x + hb.x) / 2, my = (ha.y + hb.y) / 2;
+      FX.impact(mx, my, 0, 1.1, "#fff");
+      FX.part({ x: mx, y: my, life: 20, size: 16, color: COLORS.spark, type: "ring", grav: 0, drag: 1, w: 5 });
+      FX.pop(mx, my - 30, "CLASH", "#fff", true);
+      A.vx = -A.facing * 5; B.vx = -B.facing * 5;
+      A.move = null; A.phase = "none"; A.setState(A.onGround ? "idle" : "fall"); A.trail.length = 0;
+      B.move = null; B.phase = "none"; B.setState(B.onGround ? "idle" : "fall"); B.trail.length = 0;
+      this.hitstop = 10;
+      Cam.kick(12);
+      Sound.clash();
+      return;
+    }
+
+    this.tryHit(A, B, ha);
+    this.tryHit(B, A, hb);
+  },
+
+  tryHit(att, def, hb) {
+    if (!hb) return;
+    const r = def.hurtbox;
+    if (!circleRect(hb.x, hb.y, hb.r, r.x, r.y, r.w, r.h)) return;
+
+    const m = hb.m;
+    att.hitDone = true;
+    const dir = sign(def.x - att.x) || att.facing;
+    def.takeHit(m, dir, att);
+
+    // 命中點（取 hitbox 與身體之間）
+    const px = clamp(hb.x, r.x, r.x + r.w);
+    const py = clamp(hb.y, r.y, r.y + r.h);
+    const power = clamp(m.dmg / 15, 0.35, 1.3);
+
+    FX.impact(px, py, dir, power, att.color);
+    FX.pop(px, py - 34, `-${m.dmg}`, m.special ? COLORS.spark : "#fff", m.special || m.launcher);
+    if (m.special || m.launcher) {
+      FX.pop(px, py - 62, m.label, att.soft, false);
+      FX.flash = m.special ? 0.42 : 0.24;
+      FX.flashColor = att.soft;
+    }
+
+    att.combo++;
+    att.comboTimer = 96;
+    att.comboShow = 12;
+    this.hitstop = m.hitstop;
+    Cam.kick(m.shake);
+    Sound.hit(power);
+
+    // 打飛撞牆的額外效果
+    if (def.x <= WALL_PAD + 2 || def.x >= ARENA_W - WALL_PAD - 2) Cam.kick(6);
+  },
+
+  updateOrbs() {
+    for (let i = this.orbs.length - 1; i >= 0; i--) {
+      const o = this.orbs[i];
+      o.update();
+      if (!o.dead) {
+        for (const f of [this.p1, this.p2]) {
+          if (f === o.owner || !f.alive) continue;
+          const r = f.hurtbox;
+          if (circleRect(o.x, o.y, o.r, r.x, r.y, r.w, r.h)) {
+            const dir = sign(o.vx);
+            const m = { dmg: o.dmg, kbx: 6.4, kby: -4.4, hitstun: 24, label: "氣功彈", special: true };
+            f.takeHit(m, dir, o.owner);
+            FX.impact(o.x, o.y, dir, 1.1, o.color);
+            FX.pop(o.x, o.y - 34, `-${o.dmg}`, COLORS.spark, true);
+            FX.pop(o.x, o.y - 62, "氣功彈", o.soft, false);
+            FX.flash = 0.36; FX.flashColor = o.soft;
+            o.owner.combo++; o.owner.comboTimer = 96; o.owner.comboShow = 12;
+            this.hitstop = 11;
+            Cam.kick(13);
+            Sound.hit(1);
+            o.burst();
+            break;
+          }
+        }
+      }
+      if (o.dead) this.orbs.splice(i, 1);
+    }
+  },
+
+  /* ---------- 繪製 ---------- */
+  render(time) {
+    ctx.clearRect(0, 0, VIEW_W, VIEW_H);
+
+    Cam.apply(ctx);
+    drawArena(time);
+
+    // 殘影（衝刺與高速移動）
+    for (const g of FX.ghosts) {
+      drawFigure(g.J, g.color, g.color, { alpha: (g.life / g.max) * g.a, glow: 4 });
+    }
+
+    drawShadow(this.p1);
+    drawShadow(this.p2);
+    drawOrbs();
+
+    for (const f of [this.p1, this.p2]) {
+      drawTrail(f);
+      const flashing = f.flashT > 0 && f.flashT % 4 < 2;
+      drawFigure(f.J, f.color, f.soft, {
+        override: flashing ? "#ffffff" : null,
+        glow: f.state === "dash" ? 22 : (f.move && f.phase === "active" ? 17 : 11)
+      });
+      // 衝刺時的前導衝擊波
+      if (f.state === "dash" && f.phase === "active") {
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = f.soft;
+        ctx.lineWidth = 3;
+        ctx.shadowColor = f.color; ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.ellipse(f.x + f.facing * 26, f.y - 40, 10, 30, f.facing * 0.3, 0, 6.2832);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    drawParticles();
+    drawPops();
+    ctx.restore();
+
+    // ---- 螢幕空間 ----
+    if (FX.flash > 0) {
+      ctx.save();
+      ctx.globalAlpha = clamp(FX.flash, 0, 1) * 0.7;
+      ctx.fillStyle = FX.flashColor;
+      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+      ctx.restore();
+    }
+
+    HUD.vignette();
+    HUD.bar(this.p1, 1);
+    HUD.bar(this.p2, -1);
+    HUD.timer();
+    HUD.announce();
+    HUD.fps();
+
+    if (this.phase === "menu") {
+      ctx.save();
+      ctx.fillStyle = "rgba(6,9,14,0.35)";
+      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+      ctx.restore();
+    }
+  }
+};
+
+/* --------------------------- 12. UI --------------------------- */
+const UI = {
+  menu: document.getElementById("ov-menu"),
+  pause: document.getElementById("ov-pause"),
+  win: document.getElementById("ov-win"),
+
+  hideAll() {
+    [this.menu, this.pause, this.win].forEach(o => o.classList.remove("show"));
+  },
+  show(which) {
+    this.hideAll();
+    this[which].classList.add("show");
+  },
+  showWin() {
+    const w = Game.winner;
+    const title = document.getElementById("win-title");
+    const kicker = document.getElementById("win-kicker");
+    const sub = document.getElementById("win-sub");
+    const banner = document.getElementById("win-banner");
+
+    if (w) {
+      const color = w.color;
+      title.textContent = `${w.name} 獲勝！`;
+      title.style.color = color;
+      title.style.textShadow = `0 0 26px ${color}88, 0 0 70px ${color}44`;
+      banner.style.color = color;
+      kicker.textContent = Game.reason === "time" ? "TIME UP" : "K.O.";
+      const loser = w === Game.p1 ? Game.p2 : Game.p1;
+      sub.textContent = Game.reason === "time"
+        ? `時間到，血量 ${Math.ceil(w.hp)} : ${Math.ceil(loser.hp)}`
+        : `剩餘血量 ${Math.ceil(w.hp)} / 100 · 對手倒地`;
+    } else {
+      title.textContent = "平手！";
+      title.style.color = "#e6eef8";
+      title.style.textShadow = "0 0 26px rgba(230,238,248,.5)";
+      banner.style.color = "#8899ad";
+      kicker.textContent = "DRAW";
+      sub.textContent = "兩位火柴人同時倒下。";
+    }
+    // 重播出場動畫
+    title.classList.remove("pop");
+    void title.offsetWidth;
+    title.classList.add("pop");
+    this.show("win");
+  }
+};
+
+/* 按鈕 */
+function bind(id, fn) {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("click", fn);
+}
+bind("btn-start", () => Game.start());
+bind("btn-start-2", () => Game.start());
+bind("btn-rematch", () => Game.start());
+bind("btn-reset-menu", () => Game.reset(false));
+bind("btn-reset-pause", () => Game.reset(false));
+bind("btn-reset-win", () => Game.reset(false));
+bind("btn-reset-2", () => Game.reset(false));
+bind("btn-resume", () => Game.pause(false));
+bind("btn-pause-2", () => Game.pause(!Game.paused));
+bind("btn-sound", () => {
+  const on = Sound.toggle();
+  const b = document.getElementById("btn-sound");
+  b.textContent = on ? "音效 開" : "音效 關";
+  b.setAttribute("aria-pressed", String(on));
+});
+
+/* 快捷鍵：Enter 開始、Esc 暫停 */
+window.addEventListener("keydown", e => {
+  if (e.code === "Enter") {
+    if (Game.phase === "menu" || Game.phase === "over") Game.start();
+    else if (Game.paused) Game.pause(false);
+  } else if (e.code === "Escape") {
+    if (Game.phase === "fight" || Game.phase === "intro") Game.pause(!Game.paused);
+  }
+});
+// 點擊畫面外時避免按鍵殘留
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && Game.phase === "fight") Game.pause(true);
+});
+
+/* --------------------------- 13. 主循環 --------------------------- */
+let last = performance.now();
+let acc = 0;
+let fpsAcc = 0, fpsCount = 0;
+
+function frame(now) {
+  requestAnimationFrame(frame);
+
+  let dt = (now - last) / 1000;
+  last = now;
+  if (dt > 0.25) dt = 0.25;          // 切換分頁回來時不要暴衝
+
+  // FPS 顯示
+  fpsAcc += dt; fpsCount++;
+  if (fpsAcc >= 0.5) {
+    Game.fps = Math.round(fpsCount / fpsAcc);
+    fpsAcc = 0; fpsCount = 0;
+  }
+
+  if (!Game.paused && Game.phase !== "menu") {
+    acc += dt * Game.timeScale;
+    let guard = 0;
+    while (acc >= STEP && guard < 6) {
+      Game.step();
+      acc -= STEP;
+      guard++;
+    }
+    if (guard >= 6) acc = 0;
+  } else {
+    // 選單/暫停時仍讓角色呼吸、粒子飄動
+    Game.p1.animT += dt; Game.p2.animT += dt;
+    Game.p1.blend(); Game.p1.computeJoints();
+    Game.p2.blend(); Game.p2.computeJoints();
+    FX.update(dt * 30);
+    Cam.update(Game.p1, Game.p2);
+    Input.clearEdge();
+  }
+
+  Game.render(now / 1000);
+}
+
+Game.init();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
+火柴人擂台.html
+目前顯示的是「火柴人擂台.html」。
